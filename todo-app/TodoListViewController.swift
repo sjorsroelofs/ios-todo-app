@@ -178,7 +178,9 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         searchBar.text = ""
+        
         resetItems()
+        scrollTableViewToTop()
     }
     
     
@@ -239,7 +241,7 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
             for item in section {
                 itemsFiltered.append([NSManagedObject]())
                 
-                if (item.valueForKey("todoTitle") as? String)?.rangeOfString(searchQuery) != nil {
+                if (item.valueForKey("todoTitle") as? String)?.lowercaseString.rangeOfString(searchQuery.lowercaseString) != nil {
                     itemsFiltered[index].append(item)
                 }
             }
@@ -251,5 +253,9 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     func resetItems() {
         itemsFiltered = items
         itemList.reloadData()
+    }
+    
+    func scrollTableViewToTop() {
+        itemList.setContentOffset(CGPointMake(0.0, -itemList.contentInset.top + searchBar.bounds.size.height), animated: true)
     }
 }
