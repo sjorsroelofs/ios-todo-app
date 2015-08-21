@@ -9,9 +9,10 @@
 import UIKit
 import CoreData
 
-class TodoListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TodoListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     // MARK: IBOutlets
     @IBOutlet weak var itemList: UITableView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     
     // MARK: Properties
@@ -26,17 +27,22 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     var notificationCenter = NSNotificationCenter.defaultCenter()
     var uncheckedItems = [NSManagedObject]()
     var items = [[NSManagedObject]]()
+    var itemsFiltered = [[NSManagedObject]]()
 
-    
+
     // MARK: Class method overrides
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        fetchToDoItems()
-        
         notificationCenter.addObserver(self, selector: "reloadData:", name: NSManagedObjectContextObjectsDidChangeNotification, object: managedObjectContext)
+        
+        fetchToDoItems()
+
+        var newBounds = itemList.bounds
+        newBounds.origin.y = newBounds.origin.y + searchBar.bounds.size.height
+        itemList.bounds = newBounds
     }
-    
+
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "todoItemDetailView" {
             if let detailViewController = segue.destinationViewController as? ItemDetailViewController {
@@ -44,8 +50,8 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
             }
         }
     }
-    
-    
+
+
     // MARK: IBAction's
     @IBAction func newItemPressed(sender: UIButton) {
         UIView.animateWithDuration(0.4, animations: { () -> Void in
@@ -68,22 +74,22 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     
     // MARK: UITableViewDataSource methods
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return items.count
+        return itemsFiltered.count
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items[section].count
+        return itemsFiltered[section].count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = itemList.dequeueReusableCellWithIdentifier("ToDoItemCell")! as! TodoItemTableViewCell
         
-        cell.item = items[indexPath.section][indexPath.row]
-        cell.itemTitle.text = items[indexPath.section][indexPath.row].valueForKey("todoTitle") as? String
-        cell.setButtonImage(items[indexPath.section][indexPath.row].valueForKey("todoCompleted") as? Bool)
+        cell.item = itemsFiltered[indexPath.section][indexPath.row]
+        cell.itemTitle.text = itemsFiltered[indexPath.section][indexPath.row].valueForKey("todoTitle") as? String
+        cell.setButtonImage(itemsFiltered[indexPath.section][indexPath.row].valueForKey("todoCompleted") as? Bool)
         cell.itemTitle.textColor = UIColor(white: 0.0, alpha: 1.0)
         
-        if items[indexPath.section][indexPath.row].valueForKey("todoCompleted") as? Bool == true {
+        if itemsFiltered[indexPath.section][indexPath.row].valueForKey("todoCompleted") as? Bool == true {
             cell.itemTitle.textColor = UIColor(white: 0.6, alpha: 1.0)
         }
         
@@ -95,15 +101,15 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        let itemToMove = items[sourceIndexPath.section].removeAtIndex(sourceIndexPath.row)
-        items[destinationIndexPath.section].insert(itemToMove, atIndex: destinationIndexPath.row)
+        let itemToMove = itemsFiltered[sourceIndexPath.section].removeAtIndex(sourceIndexPath.row)
+        itemsFiltered[destinationIndexPath.section].insert(itemToMove, atIndex: destinationIndexPath.row)
         
         updateSortOrder()
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            if let item = items[indexPath.section][indexPath.row] as NSManagedObject? {
+            if let item = itemsFiltered[indexPath.section][indexPath.row] as NSManagedObject? {
                 managedObjectContext?.deleteObject(item)
             }
         }
@@ -120,7 +126,7 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let cell = itemList.dequeueReusableCellWithIdentifier("ToDoSectionCell")! as! TodoSectionTitleTableViewCell
      
-        if section == 1 && items[section].count > 0 {
+        if section == 1 && itemsFiltered[section].count > 0 {
             cell.sectionTitleLabel.text = "completed"
             return cell.contentView
         }
@@ -129,7 +135,7 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 0 || items[section].count == 0 {
+        if section == 0 || itemsFiltered[section].count == 0 {
             return 0.0
         }
         
@@ -138,7 +144,7 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        performSegueWithIdentifier("todoItemDetailView", sender: items[indexPath.section][indexPath.row])
+        performSegueWithIdentifier("todoItemDetailView", sender: itemsFiltered[indexPath.section][indexPath.row])
     }
     
     func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -160,9 +166,25 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     
+    // MARK: Searchbar delegate methods
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.characters.count > 0 {
+            filterItems(searchText)
+        } else {
+            resetItems()
+        }
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        searchBar.text = ""
+        resetItems()
+    }
+    
+    
     // MARK: Custom methods
     func updateSortOrder() {
-        for (index, item) in items[0].enumerate() {
+        for (index, item) in itemsFiltered[0].enumerate() {
             item.setValue(index + 1, forKey: "todoOrder")
             
             do {
@@ -180,7 +202,7 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     
     func fetchToDoItems() {
         items = [[NSManagedObject]]()
-        
+
         if managedObjectContext != nil {
             do {
                 let sortOrder = NSSortDescriptor(key: "todoOrder", ascending: true)
@@ -202,9 +224,32 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
                 if let fetchedResults = try managedObjectContext!.executeFetchRequest(fetchRequest) as? [NSManagedObject] {
                     items.append(fetchedResults)
                 }
+                
+                itemsFiltered = items
             } catch {
                 print("Error fetching results")
             }
         }
+    }
+    
+    func filterItems(searchQuery: String) {
+        itemsFiltered = [[NSManagedObject]]()
+        
+        for (index, section) in items.enumerate() {
+            for item in section {
+                itemsFiltered.append([NSManagedObject]())
+                
+                if (item.valueForKey("todoTitle") as? String)?.rangeOfString(searchQuery) != nil {
+                    itemsFiltered[index].append(item)
+                }
+            }
+        }
+        
+        itemList.reloadData()
+    }
+    
+    func resetItems() {
+        itemsFiltered = items
+        itemList.reloadData()
     }
 }

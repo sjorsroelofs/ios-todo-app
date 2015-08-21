@@ -31,12 +31,24 @@
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="57" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="0NU-tC-wrQ">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <searchBar key="tableHeaderView" contentMode="redraw" showsCancelButton="YES" id="BdM-nL-Yow">
+                                    <rect key="frame" x="0.0" y="64" width="375" height="44"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                    <textInputTraits key="textInputTraits"/>
+                                    <scopeButtonTitles>
+                                        <string>Title</string>
+                                        <string>Title</string>
+                                    </scopeButtonTitles>
+                                    <connections>
+                                        <outlet property="delegate" destination="icO-gE-HVn" id="Hvv-gB-DZS"/>
+                                    </connections>
+                                </searchBar>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ToDoSectionCell" rowHeight="57" id="vR7-p2-HgM" customClass="TodoSectionTitleTableViewCell" customModule="ToDo_" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="92" width="375" height="57"/>
+                                        <rect key="frame" x="0.0" y="136" width="375" height="57"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="vR7-p2-HgM" id="7f7-Xl-h2E">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="56.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="56"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="[section title]" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jHq-yB-ALK">
@@ -61,10 +73,10 @@
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ToDoItemCell" rowHeight="57" id="P2a-eU-99A" customClass="TodoItemTableViewCell" customModule="ToDo_" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="149" width="375" height="57"/>
+                                        <rect key="frame" x="0.0" y="193" width="375" height="57"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="P2a-eU-99A" id="Miv-pa-fxp">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="56.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="56"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="[Item title]" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y3r-Rd-RDv">
@@ -77,12 +89,11 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SyE-d0-orw">
-                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="56.5"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="57"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="50" id="d5Q-Xz-ey9"/>
                                                         <constraint firstAttribute="height" constant="56.5" id="dJ0-3P-ZRi"/>
                                                     </constraints>
-                                                    <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                     <state key="normal" image="checkbox-undone"/>
                                                     <connections>
                                                         <action selector="donePressed" destination="P2a-eU-99A" eventType="touchUpInside" id="itp-P6-sTT"/>
@@ -140,6 +151,7 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
                         <outlet property="itemList" destination="0NU-tC-wrQ" id="BPI-20-4Zv"/>
+                        <outlet property="searchBar" destination="BdM-nL-Yow" id="HZC-8U-fZM"/>
                         <segue destination="W4P-ZL-ECA" kind="show" identifier="todoItemDetailView" id="p9a-2I-TKA"/>
                         <segue destination="LaW-Gt-I5w" kind="show" identifier="todoItemNew" id="e8i-Xr-KfG"/>
                     </connections>
