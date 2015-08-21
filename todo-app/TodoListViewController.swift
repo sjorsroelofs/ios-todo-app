@@ -10,9 +10,11 @@ import UIKit
 import CoreData
 
 class TodoListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-
+    // MARK: IBOutlets
     @IBOutlet weak var itemList: UITableView!
     
+    
+    // MARK: Properties
     let appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate
     var managedObjectContext: NSManagedObjectContext? {
         if appDelegate != nil {
@@ -25,6 +27,8 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     var uncheckedItems = [NSManagedObject]()
     var items = [[NSManagedObject]]()
 
+    
+    // MARK: Class method overrides
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -33,6 +37,36 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
         notificationCenter.addObserver(self, selector: "reloadData:", name: NSManagedObjectContextObjectsDidChangeNotification, object: managedObjectContext)
     }
     
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "todoItemDetailView" {
+            if let detailViewController = segue.destinationViewController as? ItemDetailViewController {
+                detailViewController.item = sender as? NSManagedObject
+            }
+        }
+    }
+    
+    
+    // MARK: IBAction's
+    @IBAction func newItemPressed(sender: UIButton) {
+        UIView.animateWithDuration(0.4, animations: { () -> Void in
+            sender.transform = CGAffineTransformMakeRotation((180.0 * CGFloat(M_PI)) / 180.0)
+            }) { (Bool) -> Void in
+                sender.transform = CGAffineTransformMakeRotation(0.0)
+                self.performSegueWithIdentifier("todoItemNew", sender: nil)
+        }
+    }
+    
+    @IBAction func editButtonPressed(sender: UIBarButtonItem) {
+        switch itemList.editing {
+            case true: sender.title = "Edit"
+            default: sender.title = "Done"
+        }
+        
+        itemList.setEditing(!itemList.editing, animated: true)
+    }
+    
+    
+    // MARK: UITableViewDataSource methods
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return items.count
     }
@@ -108,18 +142,16 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if indexPath.section == 0 {
-            return true
+        switch indexPath.section {
+            case 0 : return true
+            default: return false
         }
-
-        return false
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        if itemList.editing == true {
-            return .None
-        } else {
-            return .Delete
+        switch itemList.editing {
+            case true: return .None
+            default: return .Delete
         }
     }
     
@@ -127,6 +159,8 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
         return false
     }
     
+    
+    // MARK: Custom methods
     func updateSortOrder() {
         for (index, item) in items[0].enumerate() {
             item.setValue(index + 1, forKey: "todoOrder")
@@ -173,32 +207,4 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
             }
         }
     }
-    
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "todoItemDetailView" {
-            if let detailViewController = segue.destinationViewController as? ItemDetailViewController {
-                detailViewController.item = sender as? NSManagedObject
-            }
-        }
-    }
-    
-    @IBAction func newItemPressed(sender: UIButton) {
-        UIView.animateWithDuration(0.4, animations: { () -> Void in
-            sender.transform = CGAffineTransformMakeRotation((180.0 * CGFloat(M_PI)) / 180.0)
-            }) { (Bool) -> Void in
-                sender.transform = CGAffineTransformMakeRotation(0.0)
-                self.performSegueWithIdentifier("todoItemNew", sender: nil)
-        }
-    }
-    
-    @IBAction func editButtonPressed(sender: UIBarButtonItem) {
-        if itemList.editing {
-            sender.title = "Edit"
-        } else {
-            sender.title = "Done"
-        }
-        
-        itemList.setEditing(!itemList.editing, animated: true)
-    }
-
 }

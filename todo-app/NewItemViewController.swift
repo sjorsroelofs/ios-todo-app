@@ -10,9 +10,11 @@ import UIKit
 import CoreData
 
 class NewItemViewController: UIViewController {
-
+    // MARK: IBOutlets
     @IBOutlet weak var titleLabel: UITextField!
 
+    
+    // MARK: Properties
     let appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate
     var managedObjectContext: NSManagedObjectContext? {
         if appDelegate != nil {
@@ -22,6 +24,8 @@ class NewItemViewController: UIViewController {
         return nil
     }
     
+    
+    // MARK: Class method overrides
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,6 +36,8 @@ class NewItemViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
+    
+    // MARK: IBActions
     @IBAction func saveItem() {
         if managedObjectContext != nil {
             if let title = titleLabel.text {
@@ -54,5 +60,4 @@ class NewItemViewController: UIViewController {
             }
         }
     }
-
 }

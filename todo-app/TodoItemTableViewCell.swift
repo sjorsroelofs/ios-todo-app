@@ -10,10 +10,12 @@ import UIKit
 import CoreData
 
 class TodoItemTableViewCell: UITableViewCell {
-
+    // MARK: Outlets
     @IBOutlet weak var itemTitle: UILabel!
     @IBOutlet weak var doneButton: UIButton!
     
+    
+    // MARK: Properties
     var item: NSManagedObject?
     let appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate
     var managedObjectContext: NSManagedObjectContext? {
@@ -23,7 +25,9 @@ class TodoItemTableViewCell: UITableViewCell {
         
         return nil
     }
-
+    
+    
+    // MARK: IBActions
     @IBAction func donePressed() {
         if item != nil {
             var setCompleted = true;
@@ -52,6 +56,8 @@ class TodoItemTableViewCell: UITableViewCell {
         }
     }
     
+    
+    // MARK: Custom methods
     func setButtonImage(completed: Bool?) {
         var isCompleted = false
         

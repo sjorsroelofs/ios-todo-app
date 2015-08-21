@@ -10,11 +10,13 @@ import UIKit
 import CoreData
 
 class ItemDetailViewController: UIViewController {
-
+    // MARK: IBOutlets
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var completedDateLabel: UILabel!
     
+    
+    // MARK: Properties
     var item: NSManagedObject?;
     let appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate
     var managedObjectContext: NSManagedObjectContext? {
@@ -26,6 +28,8 @@ class ItemDetailViewController: UIViewController {
     }
     let dateFormatter = NSDateFormatter();
     
+    
+    // MARK: Class method overrides
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -48,6 +52,8 @@ class ItemDetailViewController: UIViewController {
         }
     }
 
+    
+    // MARK: IBActions
     @IBAction func deleteItem() {
         if item != nil {
             managedObjectContext?.deleteObject(item!)

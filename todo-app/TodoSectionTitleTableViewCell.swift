@@ -9,11 +9,6 @@
 import UIKit
 
 class TodoSectionTitleTableViewCell: UITableViewCell {
-
+    // MARK: IBOutlets
     @IBOutlet weak var sectionTitleLabel: UILabel!
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-    }
-
 }
