@@ -54,12 +54,7 @@ class TodoListViewController: UIViewController, UITableViewDelegate, UITableView
 
     // MARK: IBAction's
     @IBAction func newItemPressed(sender: UIButton) {
-        UIView.animateWithDuration(0.4, animations: { () -> Void in
-            sender.transform = CGAffineTransformMakeRotation((180.0 * CGFloat(M_PI)) / 180.0)
-            }) { (Bool) -> Void in
-                sender.transform = CGAffineTransformMakeRotation(0.0)
-                self.performSegueWithIdentifier("todoItemNew", sender: nil)
-        }
+        self.performSegueWithIdentifier("todoItemNew", sender: nil)
     }
     
     @IBAction func editButtonPressed(sender: UIBarButtonItem) {
